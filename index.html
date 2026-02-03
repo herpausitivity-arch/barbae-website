@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Mixology | Premium Bartending Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hot-pink: #FF69B4;
+            --hot-pink-glow: rgba(255, 105, 180, 0.4);
+            --gold-accent: #D4AF37;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; scroll-behavior: smooth; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        
+        .pink-gold-text {
+            background: linear-gradient(135deg, var(--hot-pink) 0%, #ff85c1 40%, var(--gold-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-hotpink {
+            background: linear-gradient(135deg, var(--hot-pink) 0%, #ff1493 100%);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px var(--hot-pink-glow);
+        }
+        .btn-hotpink:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 0 25px var(--hot-pink); 
+            filter: brightness(1.1);
+        }
+
+        .card-border { 
+            border: 1px solid rgba(255, 105, 180, 0.2); 
+            transition: all 0.4s ease; 
+        }
+        .card-border:hover { 
+            border-color: var(--hot-pink);
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.1);
+        }
+
+        .gold-border {
+            border: 1px solid var(--gold-accent);
+        }
+
+        @keyframes pulse-pink {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 105, 180, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 105, 180, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 105, 180, 0); }
+        }
+
+        .hover-pulse:hover {
+            animation: pulse-pink 2s infinite ease-in-out;
+            border-color: var(--hot-pink) !important;
+            color: var(--hot-pink) !important;
+        }
+        
+        /* Custom scrollbar for brand consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--hot-pink); border-radius: 10px; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.475.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
