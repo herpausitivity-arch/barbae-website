@@ -4,6 +4,11 @@ import { Plan, SiteContent, GalleryImage, SocialPost, Testimonial, Inquiry } fro
 import { INITIAL_CONTENT } from './constants';
 import { PlanCard } from './components/PlanCard';
 import { ServicesRibbon } from './components/ServicesRibbon';
+import {
+  loadContent, saveContent,
+  loadInquiries, addInquiry, updateInquiry as updateInquiryFB, deleteInquiry as deleteInquiryFB,
+  uploadImage
+} from './firebaseService';
 import { 
   Instagram, Facebook, Linkedin, Quote, GlassWater, Award, 
   ShieldCheck, Mail, Phone, MapPin, Send, CalendarCheck, 
@@ -13,50 +18,6 @@ import {
   Star, Coffee, Utensils
 } from 'lucide-react';
 
-const MOCK_INQUIRIES: Inquiry[] = [
-  {
-    id: 'lead-001',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-    fullName: "Julianne Smith",
-    email: "jsmith@luxuryevents.com",
-    eventName: "The Crystal Winter Gala",
-    eventDate: "December 15, 2025",
-    startTime: "19:00",
-    category: "Luxury Wedding",
-    capacity: "Grand (150 - 300)",
-    budget: "$5,000 - $10,000",
-    description: "A high-end wedding celebration requiring our custom neon bar setup and edible gold leaf garnishes for the signature cocktails.",
-    notes: "High priority client. Requested a specific tasting session for the 'Midnight Gold' cocktail."
-  },
-  {
-    id: 'lead-002',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
-    fullName: "Marcus Sterling",
-    email: "m.sterling@techcorp.io",
-    eventName: "Silicon Valley Tech Summit Afterparty",
-    eventDate: "October 10, 2025",
-    startTime: "20:30",
-    category: "Corporate Gala",
-    capacity: "Exhibition (300+)",
-    budget: "$10,000+",
-    description: "Fast-paced networking event. Needs 4 bar stations and quick service. Focus on smoked old fashioneds.",
-    notes: "Requires coordination with venue security for dry ice transport."
-  },
-  {
-    id: 'lead-003',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    fullName: "Elena Rodriguez",
-    email: "elena.rod@vogue.es",
-    eventName: "Private Rooftop Birthday Experience",
-    eventDate: "August 22, 2025",
-    startTime: "18:00",
-    category: "Private Speakeasy",
-    capacity: "Boutique (Under 50)",
-    budget: "$1,000 - $2,500",
-    description: "An intimate gathering for fashion industry leaders. Aesthetic is everything. Custom floral-infused gin cocktails required.",
-    notes: "Requested a female lead mixologist. Colors should be strictly hot pink and white."
-  }
-];
 
 const AdminDashboard: React.FC<{ 
   content: SiteContent, 
@@ -159,23 +120,36 @@ const AdminDashboard: React.FC<{
     document.body.removeChild(link);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !uploadingFor) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
+    try {
+      const downloadURL = await uploadImage(file, uploadingFor.field);
       if (uploadingFor.field === 'recipe') {
-        handleInputChange('recipe', { ...localContent.recipe, image: base64String });
+        handleInputChange('recipe', { ...localContent.recipe, image: downloadURL });
       } else if (uploadingFor.field === 'about') {
-        handleInputChange('aboutImage', base64String);
+        handleInputChange('aboutImage', downloadURL);
       } else {
-        updateItem(uploadingFor.field as any, uploadingFor.index!, { url: base64String });
+        updateItem(uploadingFor.field as any, uploadingFor.index!, { url: downloadURL });
       }
-      setUploadingFor(null);
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Upload failed, falling back to base64:', error);
+      // Fallback to base64 if Firebase Storage fails
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        if (uploadingFor.field === 'recipe') {
+          handleInputChange('recipe', { ...localContent.recipe, image: base64String });
+        } else if (uploadingFor.field === 'about') {
+          handleInputChange('aboutImage', base64String);
+        } else {
+          updateItem(uploadingFor.field as any, uploadingFor.index!, { url: base64String });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    setUploadingFor(null);
     if (e.target) e.target.value = '';
   };
 
@@ -203,7 +177,7 @@ const AdminDashboard: React.FC<{
           <button onClick={() => { if(confirm('Reset all content to defaults?')) { onUpdate(INITIAL_CONTENT); setLocalContent(INITIAL_CONTENT); } }} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
             <RotateCcw size={16} /> Reset
           </button>
-          <button onClick={() => { onUpdate(localContent); onClose(); }} className="btn-hotpink px-6 py-2 rounded-lg flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+          <button onClick={async () => { await saveContent(localContent); onUpdate(localContent); onClose(); }} className="btn-hotpink px-6 py-2 rounded-lg flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
             <Save size={16} /> Save
           </button>
           <button onClick={onLogout} className="px-4 py-2 border border-zinc-800 hover:border-red-500/50 hover:text-red-500 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2">
@@ -744,10 +718,7 @@ const InquiryPage: React.FC<{ onBack: () => void, onSubmit: (data: Omit<Inquiry,
 
 const App: React.FC = () => {
   const [content, setContent] = useState<SiteContent>(INITIAL_CONTENT);
-  const [inquiries, setInquiries] = useState<Inquiry[]>(() => {
-    const saved = localStorage.getItem('site_inquiries');
-    return saved ? JSON.parse(saved) : MOCK_INQUIRIES;
-  });
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [currentView, setCurrentView] = useState<'landing' | 'inquiry'>('landing');
   const [showAdmin, setShowAdmin] = useState(false);
   const [expandedTestimonials, setExpandedTestimonials] = useState<Set<number>>(new Set());
@@ -756,9 +727,23 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('is_authenticated') === 'true');
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => { localStorage.setItem('site_content', JSON.stringify(content)); }, [content]);
-  useEffect(() => { localStorage.setItem('site_inquiries', JSON.stringify(inquiries)); }, [inquiries]);
+  // Load content and inquiries from Firebase on mount
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const [fbContent, fbInquiries] = await Promise.all([loadContent(), loadInquiries()]);
+        setContent(fbContent);
+        setInquiries(fbInquiries);
+      } catch (error) {
+        console.error('Error loading from Firebase:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    init();
+  }, []);
 
   // Gallery Carousel Effect
   useEffect(() => {
@@ -786,8 +771,29 @@ const App: React.FC = () => {
     localStorage.removeItem('is_authenticated');
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-2 border-[#FF69B4] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Loading Experience</p>
+        </div>
+      </div>
+    );
+  }
+
   if (currentView === 'inquiry') {
-    return <InquiryPage onBack={() => setCurrentView('landing')} onSubmit={(d) => setInquiries(p => [{ ...d, id: crypto.randomUUID(), timestamp: new Date().toISOString() }, ...p])} />;
+    return <InquiryPage onBack={() => setCurrentView('landing')} onSubmit={async (d) => {
+      const inquiryData = { ...d, timestamp: new Date().toISOString() };
+      try {
+        const id = await addInquiry(inquiryData);
+        setInquiries(p => [{ ...inquiryData, id }, ...p]);
+      } catch (error) {
+        console.error('Error submitting inquiry:', error);
+        // Fallback: still add locally
+        setInquiries(p => [{ ...inquiryData, id: crypto.randomUUID() }, ...p]);
+      }
+    }} />;
   }
 
   return (
@@ -795,11 +801,17 @@ const App: React.FC = () => {
       {showLogin && <LoginOverlay onLogin={handleLogin} onClose={() => setShowLogin(false)} />}
       {legalModal && <LegalModal title={legalModal.title} content={legalModal.content} onClose={() => setLegalModal(null)} />}
       {showAdmin && (
-        <AdminDashboard 
+        <AdminDashboard
           content={content} onUpdate={setContent} inquiries={inquiries}
-          onUpdateInquiry={(id, u) => setInquiries(p => p.map(i => i.id === id ? { ...i, ...u } : i))}
-          onDeleteInquiry={(id) => setInquiries(p => p.filter(i => i.id !== id))}
-          onLogout={handleLogout} onClose={() => setShowAdmin(false)} 
+          onUpdateInquiry={async (id, u) => {
+            try { await updateInquiryFB(id, u); } catch (e) { console.error(e); }
+            setInquiries(p => p.map(i => i.id === id ? { ...i, ...u } : i));
+          }}
+          onDeleteInquiry={async (id) => {
+            try { await deleteInquiryFB(id); } catch (e) { console.error(e); }
+            setInquiries(p => p.filter(i => i.id !== id));
+          }}
+          onLogout={handleLogout} onClose={() => setShowAdmin(false)}
         />
       )}
 
