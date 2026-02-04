@@ -126,7 +126,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({ selectedPlan, 
           </p>
         </div>
         <p className="text-[#D4AF37] mt-4 font-bold">// QUOTE LAYOUT END //</p>
-        <p className="mt-4 text-[10px] text-zinc-500 italic">This is an automated estimation generated for Elite Mixology.</p>
+        <p className="mt-4 text-[10px] text-zinc-500 italic">This is an automated estimation generated for Barbae Xperiance.</p>
       </div>
     </div>
   );

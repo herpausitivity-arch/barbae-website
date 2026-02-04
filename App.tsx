@@ -743,16 +743,14 @@ const InquiryPage: React.FC<{ onBack: () => void, onSubmit: (data: Omit<Inquiry,
 };
 
 const App: React.FC = () => {
-  const [content, setContent] = useState<SiteContent>(() => {
-    const saved = localStorage.getItem('site_content');
-    return saved ? JSON.parse(saved) : INITIAL_CONTENT;
-  });
+  const [content, setContent] = useState<SiteContent>(INITIAL_CONTENT);
   const [inquiries, setInquiries] = useState<Inquiry[]>(() => {
     const saved = localStorage.getItem('site_inquiries');
     return saved ? JSON.parse(saved) : MOCK_INQUIRIES;
   });
   const [currentView, setCurrentView] = useState<'landing' | 'inquiry'>('landing');
   const [showAdmin, setShowAdmin] = useState(false);
+  const [expandedTestimonials, setExpandedTestimonials] = useState<Set<number>>(new Set());
   const [showLogin, setShowLogin] = useState(false);
   const [legalModal, setLegalModal] = useState<{ title: string, content: string } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('is_authenticated') === 'true');
@@ -820,7 +818,8 @@ const App: React.FC = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#FF69B4]/5 blur-[120px] pointer-events-none" />
         <div className="max-w-4xl mx-auto relative z-10">
           <Target className="mx-auto text-[#D4AF37] mb-8" size={32} />
-          <p className="text-3xl md:text-5xl font-serif italic pink-gold-text leading-relaxed">"{content.missionStatement}"</p>
+          <h2 className="text-3xl md:text-5xl font-serif pink-gold-text mb-8">{content.missionStatement.split('\n\n')[0]}</h2>
+          <p className="text-lg md:text-2xl font-serif italic pink-gold-text leading-relaxed">"{content.missionStatement.split('\n\n').slice(1).join('\n\n')}"</p>
         </div>
       </section>
 
@@ -842,7 +841,6 @@ const App: React.FC = () => {
             
             <div className="space-y-10">
               <div className="space-y-4">
-                <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.5em] block">Our Heritage</span>
                 <h2 className="text-5xl md:text-7xl font-serif pink-gold-text leading-tight">{content.aboutTitle}</h2>
               </div>
               
@@ -858,22 +856,6 @@ const App: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex gap-8 pt-4">
-                <div className="space-y-2">
-                  <span className="text-3xl font-serif pink-gold-text block">12+</span>
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Years of Craft</span>
-                </div>
-                <div className="h-12 w-px bg-zinc-800"></div>
-                <div className="space-y-2">
-                  <span className="text-3xl font-serif pink-gold-text block">500+</span>
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Elite Events</span>
-                </div>
-                <div className="h-12 w-px bg-zinc-800"></div>
-                <div className="space-y-2">
-                  <span className="text-3xl font-serif pink-gold-text block">24k</span>
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Signature Pours</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -938,8 +920,19 @@ const App: React.FC = () => {
       <ServicesRibbon />
 
       <section id="plans" className="py-32 bg-black px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-[#FF69B4] py-4 px-6 text-center rounded-2xl mb-10">
+            <p className="text-white font-serif italic text-lg md:text-xl tracking-wide">Fully insured | Travel available | Custom packages on request</p>
+          </div>
+        </div>
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
           {content.plans.map(p => <PlanCard key={p.id} plan={p} onSelect={() => setCurrentView('inquiry')} isSelected={false} />)}
+        </div>
+
+        <div className="max-w-6xl mx-auto mt-16 bg-[#FF69B4] rounded-2xl py-8 px-6 text-center">
+          <h3 className="text-white font-serif italic text-2xl md:text-3xl mb-3">Add-ons Available</h3>
+          <p className="text-white font-bold text-sm md:text-base tracking-wide mb-4">Dry Ice | Mobile Bar | Ice | Alcohol | Chasers | Additional Hours</p>
+          <p className="text-white/80 text-[10px] md:text-xs font-bold uppercase tracking-widest">Charges may vary depending on event size, location, and custom requests.</p>
         </div>
       </section>
 
@@ -959,15 +952,30 @@ const App: React.FC = () => {
                 className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-10 rounded-[40px] flex flex-col h-full shadow-2xl hover:border-[#FF69B4]/30 transition-all group"
               >
                 <Quote className="mb-8 text-[#D4AF37]/40 group-hover:text-[#FF69B4]/40 transition-colors" size={32} />
-                <p className="text-lg md:text-xl font-serif italic text-white/90 leading-relaxed mb-10 flex-grow">
-                  "{test.text}"
-                </p>
+                <div className="mb-10 flex-grow">
+                  <p className="text-lg md:text-xl font-serif italic text-white/90 leading-relaxed">
+                    "{expandedTestimonials.has(idx) || test.text.length <= 150 ? test.text : test.text.slice(0, 150).trimEnd() + '...'}"
+                  </p>
+                  {test.text.length > 150 && (
+                    <button
+                      onClick={() => setExpandedTestimonials(prev => {
+                        const next = new Set(prev);
+                        next.has(idx) ? next.delete(idx) : next.add(idx);
+                        return next;
+                      })}
+                      className="mt-3 text-[#FF69B4] text-xs font-bold uppercase tracking-widest hover:text-[#D4AF37] transition-colors"
+                    >
+                      {expandedTestimonials.has(idx) ? 'Read Less' : 'Read More'}
+                    </button>
+                  )}
+                </div>
                 <div className="flex flex-col items-start pt-6 border-t border-white/5">
                   <div className="flex gap-1 mb-4">
                     {[1,2,3,4,5].map(s => <Star key={s} size={12} className="fill-[#D4AF37] text-[#D4AF37]" />)}
                   </div>
                   <h4 className="text-sm font-bold uppercase tracking-widest text-[#FF69B4] mb-1">{test.name}</h4>
                   <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-medium">{test.event}</span>
+                  {test.timeframe && <span className="text-[10px] uppercase tracking-widest text-zinc-600 font-medium mt-1">{test.timeframe}</span>}
                 </div>
               </div>
             ))}
@@ -1041,52 +1049,72 @@ const App: React.FC = () => {
         </div>
       </section>
 
+      {/* Instagram Feed Section */}
+      <section className="py-32 bg-zinc-950 px-6 border-t border-zinc-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-[#D4AF37] text-xs font-bold tracking-[0.4em] uppercase mb-6 block">Follow Us</span>
+            <h2 className="text-5xl md:text-7xl font-serif pink-gold-text mb-4">@barbae_llc</h2>
+            <p className="text-zinc-400 text-lg font-light">Behind the bar and beyond — follow our journey on Instagram</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {content.socialFeed.map((post, idx) => (
+              <a key={idx} href="https://www.instagram.com/barbae_llc/" target="_blank" rel="noopener noreferrer" className="relative group aspect-square rounded-2xl overflow-hidden border border-white/5">
+                <img src={post.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={`Instagram post ${idx + 1}`} />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center">
+                  <Instagram size={32} className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </a>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <a href="https://www.instagram.com/barbae_llc/" target="_blank" rel="noopener noreferrer" className="btn-hotpink px-10 py-4 rounded-full font-bold uppercase tracking-widest text-xs inline-block">
+              Follow @barbae_llc
+            </a>
+          </div>
+        </div>
+      </section>
+
       <footer className="py-24 border-t border-zinc-900 bg-black text-gray-400">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-20">
             {/* Column 1: Brand & Social */}
             <div className="space-y-8">
               <div>
-                <h3 className="font-serif text-3xl pink-gold-text mb-4 tracking-wider">Elite Mixology</h3>
-                <p className="text-sm font-light leading-relaxed max-w-xs">Fusing vibrant neon energy with high-end artisanal craft to design uncompromising event atmospheres.</p>
+                <h3 className="font-serif text-3xl pink-gold-text mb-4 tracking-wider">Barbae Xperiance</h3>
+                <p className="text-sm font-light leading-relaxed max-w-xs">LET'S SHAKE UP the Traditional Catering with our XCLUSIVE MOBILE BARTENDING XPERIANCE!!</p>
               </div>
               <div className="flex gap-6">
-                <a href="#" className="p-2 border border-white/5 rounded-full hover-pulse transition-all duration-300">
+                <a href="https://www.instagram.com/barbae_llc/" target="_blank" rel="noopener noreferrer" className="p-2 border border-white/5 rounded-full hover-pulse transition-all duration-300">
                   <Instagram size={20} />
                 </a>
-                <a href="#" className="p-2 border border-white/5 rounded-full hover-pulse transition-all duration-300">
+                <a href="https://www.facebook.com/people/Barbae-Xperiance/61559362225127/" target="_blank" rel="noopener noreferrer" className="p-2 border border-white/5 rounded-full hover-pulse transition-all duration-300">
                   <Facebook size={20} />
                 </a>
-                <a href="#" className="p-2 border border-white/5 rounded-full hover-pulse transition-all duration-300">
-                  <Linkedin size={20} />
+                <a href="https://www.tiktok.com/@barbae_xperiance" target="_blank" rel="noopener noreferrer" className="p-2 border border-white/5 rounded-full hover-pulse transition-all duration-300">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
                 </a>
               </div>
             </div>
 
-            {/* Column 2: Quick Links */}
-            <div className="space-y-6">
-              <h5 className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Navigation</h5>
-              <ul className="space-y-4 text-sm font-light">
-                <li><button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="hover:text-[#FF69B4] transition-colors">Experience</button></li>
-                <li><button onClick={() => setCurrentView('inquiry')} className="hover:text-[#FF69B4] transition-colors">Book Inquiry</button></li>
-              </ul>
-            </div>
-
-            {/* Column 3: Contact */}
-            <div className="space-y-6">
-              <h5 className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Concierge</h5>
-              <ul className="space-y-4 text-sm font-light">
+            {/* Column 2: Contact */}
+            <div className="space-y-6 md:ml-auto md:text-right">
+              <h5 className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Contact</h5>
+              <ul className="space-y-4 text-sm font-light md:items-end md:flex md:flex-col">
                 <li className="flex items-center gap-3">
                   <Mail size={16} className="text-[#D4AF37]" />
-                  <a href="mailto:concierge@elitemixology.com" className="hover:text-white transition-colors">concierge@elitemixology.com</a>
+                  <a href="mailto:booking@barbae.buzz" className="hover:text-white transition-colors">booking@barbae.buzz</a>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone size={16} className="text-[#D4AF37]" />
-                  <a href="tel:+12125558890" className="hover:text-white transition-colors">+1 (212) 555-8890</a>
+                  <a href="tel:+19546384903" className="hover:text-white transition-colors">954-638-4903</a>
                 </li>
                 <li className="flex items-center gap-3">
                   <MapPin size={16} className="text-[#D4AF37]" />
-                  <span>Manhattan, NY • Global HQ</span>
+                  <span>Fort Lauderdale, FL, United States, Florida</span>
+                </li>
+                <li className="pt-2">
+                  <button onClick={() => setCurrentView('inquiry')} className="btn-hotpink px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs">Book Inquiry</button>
                 </li>
               </ul>
             </div>
@@ -1098,7 +1126,7 @@ const App: React.FC = () => {
               <button onClick={() => setLegalModal({title: 'Terms & Conditions', content: content.termsAndConditions})} className="hover:text-white transition-colors">Terms & Conditions</button>
             </div>
             <div className="flex items-center gap-4">
-              <p>&copy; {new Date().getFullYear()} Elite Mixology Group LLC. All Rights Manifested.</p>
+              <p>&copy; {new Date().getFullYear()} Barbae Xperiance LLC. All Rights Manifested.</p>
               <button onClick={() => isAuthenticated ? setShowAdmin(true) : setShowLogin(true)} className="hover:text-white/40 transition-colors opacity-30 hover:opacity-100 flex items-center gap-1">
                 <Lock size={8} /> Admin
               </button>

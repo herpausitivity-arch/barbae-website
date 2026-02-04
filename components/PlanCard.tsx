@@ -37,11 +37,25 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, onSelect, isSelected }
         ))}
       </ul>
       
-      <button 
+      {plan.serving && plan.serving.length > 0 && (
+        <div className="mb-8 text-left">
+          <h4 className="text-[#FF69B4] font-serif italic text-lg mb-3">Serving:</h4>
+          <ul className="text-sm text-gray-400 space-y-2">
+            {plan.serving.map((item, idx) => (
+              <li key={idx} className="flex items-start">
+                <span className="text-[#FF69B4] mr-2">✦</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <button
         onClick={() => onSelect(plan)}
         className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest text-xs transition-all duration-300 ${
-          plan.popular 
-            ? 'btn-hotpink' 
+          plan.popular
+            ? 'btn-hotpink'
             : 'border border-[#FF69B4]/40 text-[#FF69B4] hover:bg-[#FF69B4] hover:text-white'
         }`}
       >

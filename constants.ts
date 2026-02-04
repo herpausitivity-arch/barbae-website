@@ -4,12 +4,12 @@ import { SiteContent } from './types';
 export const INITIAL_CONTENT: SiteContent = {
   heroTitle: "Liquid Artistry",
   heroSubtitle: "Premium mixology experiences where Hot Pink vibrance meets Gold sophistication.",
-  aboutTitle: "Vibrant Mastery",
-  aboutImage: "https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&q=80&w=1200",
-  aboutText1: "Founded in 2012, Elite Mixology was born from the desire to fuse the electric energy of high-end clubs with the meticulous craft of artisanal cocktail bars.",
-  aboutText2: "Our signature Hot Pink palette represents our passion and energy, while our Gold standards ensure every client receives nothing less than perfection.",
-  aboutText3: "We don't just pour drinks; we design atmosphere. From custom neon-lit bar setups to edible gold-leaf garnishes, every event is a masterpiece of modern luxury.",
-  missionStatement: "To transcend the traditional bar experience by orchestrating moments of liquid brilliance through uncompromising craft and vibrant aesthetic innovation.",
+  aboutTitle: "Book The Xperiance!",
+  aboutImage: "/Barbae Founder.png",
+  aboutText1: "Welcome to the Barbae Xperience Booking Form, your gateway to bringing an exclusive, unforgettable experience. No matter the occasion - whether it is a private event, wedding reception, or corporate gathering - our skilled bartenders from Barbae are poised to enhance your experience with their expertise in crafting signature cocktails and delivering impeccable service.",
+  aboutText2: "Utilize our streamlined booking form for a hassle-free process in securing bartending services for your event and let the Barbae team take care of the rest. We can't wait to cater to you and make your event truly memorable!",
+  aboutText3: "",
+  missionStatement: "The Spirit Behind Barbae\n\nAt Barbae LLC, we believe a great drink can bring people together but it's the experience that makes it unforgettable. We're more than bartenders; we're hosts, listeners, and vibe curators who take pride in delivering top tier service every time.\n\nWhether it's a wedding, birthday, or corporate gathering, we bring style, professionalism, and a friendly face behind the bar.\n\nGreat Drinks. Good Vibes. Spectacular Service.\n\nThat's the Barbae Experience!",
   gallery: [
     { 
       url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=1200', 
@@ -47,54 +47,77 @@ export const INITIAL_CONTENT: SiteContent = {
   ],
   testimonials: [
     {
-      name: "Alexandra Vanderbilt",
-      event: "High-Fashion Launch",
-      text: "Elite Mixology transformed our showroom launch into a multi-sensory experience. The level of detail in their smoke-infused garnishes left our guests speechless."
+      name: "Khadine Walker",
+      event: "Wedding",
+      timeframe: "2 weeks ago",
+      text: "We couldn't be happier with the bartender we had for our wedding! She was absolutely amazing—professional, efficient, and genuinely kind. She handled the bar effortlessly, kept lines moving, and always had a smile on her face. Our guests repeatedly told us how pleasant she was and how much they enjoyed interacting with her. She truly added to the overall experience of our wedding, and we would highly recommend her to anyone looking for a top-notch bartender."
     },
     {
-      name: "Marcus Sterling",
-      event: "Corporate Gala",
-      text: "Professionalism redefined. Their mixologists aren't just bartenders; they are performers who command the room while serving world-class cocktails."
+      name: "Crystal Clarke",
+      event: "Graduation Dinner Party",
+      timeframe: "4 months ago",
+      text: "Fantastic! Remarkable! Professional! Impeccable communication skills. Her mannerism is one to talk about. Very sweet and humble. Very attentive to the guests. Don't get me started on the way she designed my signature drink menu which included unique names for each one of them. I enjoyed planning my graduation dinner party with Rene. I look forward to working with you again. You made it fun and easy. See you soon!"
     },
     {
-      name: "Sienna Richards",
-      event: "Private Estate Wedding",
-      text: "From the first tasting to the wedding night, the service was gold-standard. They customized every drink to match our floral theme perfectly."
+      name: "Carole Pierre",
+      event: "40th Birthday Celebration",
+      timeframe: "3 months ago",
+      text: "I cannot say enough amazing things about these bartenders! They made my 40th birthday unforgettable. They created a custom drink menu with my specialty drinks, incorporated my green color scheme, and even added my picture - such a thoughtful, personal touch! Throughout the event, they were professional, quick, and consistent with every order. They genuinely cared about keeping the energy high and the good vibes flowing all night long. They didn't just serve drinks - they helped create an atmosphere that made my celebration truly special. If you're looking for talented, reliable bartenders who bring amazing energy, book them immediately. They are phenomenal! Thank you for making my milestone birthday unforgettable!"
     }
   ],
   plans: [
     {
       id: 'classic',
-      name: 'The Classic Lounge',
-      description: 'Standard 4-hour service focusing on 3 signature cocktails, wine, and beer service.',
-      price: 499,
+      name: 'Classic',
+      description: '',
+      price: 300,
       features: [
-        '1 Professional Bartender',
-        'Basic Bar Tools & Setup',
-        'Custom Menu Consultation'
+        'Up to 50 Guest',
+        '4 Hours of Service',
+        '1 Bartender',
+        'Custom Drink Menu (3 Options)',
+        'Cups, Napkins, Straws',
+        'Garnishes (3)'
+      ],
+      serving: [
+        'Signature Cocktails',
+        'Craft Mocktails',
+        'Frozen Slushies'
       ]
     },
     {
-      id: 'premium',
-      name: 'Premium Gala',
-      description: 'Full mixology experience with artisanal syrups, garnishes, and 5 signature drinks.',
-      price: 899,
+      id: 'signature',
+      name: 'Signature',
+      description: '',
+      price: 550,
       popular: true,
       features: [
-        '2 Professional Bartenders',
-        'Artis artisanal Ingredients',
-        'Ice & Glassware Management'
+        'Up to 100 Guest',
+        '5 Hours of Service',
+        '2 Bartenders',
+        'Custom Drink Menu (4 Options)',
+        'Cups, Napkins, Straws',
+        'Garnishes (4)',
+        'Mixers (2)',
+        'Mobile Bar'
       ]
     },
     {
-      id: 'vip',
-      name: 'VIP Black Tie',
-      description: 'The ultimate experience. Unlimited cocktails, champagne toast, and smoke infusion bar.',
-      price: 1499,
+      id: 'elite',
+      name: 'Elite',
+      description: '',
+      price: 750,
       features: [
-        'Lead Mixologist + Bar Back',
-        'Dry Ice & Smoke Effects',
-        'Premium Glassware Included'
+        'Up to 175 Guest',
+        '5 Hours of Service',
+        '3 Bartenders',
+        'Custom Drink Menu (5 Options)',
+        'Cups, Napkins, Straws',
+        'Garnishes (5)',
+        'Mixers (5)',
+        'Ice',
+        'Mobile Bar',
+        'Bar Setup/Cleanup'
       ]
     }
   ],
@@ -119,6 +142,6 @@ export const INITIAL_CONTENT: SiteContent = {
       "Express a lemon twist over the surface and discard."
     ]
   },
-  privacyPolicy: "At Elite Mixology, we value your privacy. We only collect essential information required to fulfill your bespoke mixology inquiries. Your data is never sold to third parties and is used exclusively for internal booking and communication purposes.",
-  termsAndConditions: "All Elite Mixology bookings require a 50% deposit to secure your date. Full payment is due 7 days prior to the event. Cancellations made within 48 hours of the event are non-refundable due to the custom nature of our artisanal preparations."
+  privacyPolicy: "At Barbae Xperiance, we value your privacy. We only collect essential information required to fulfill your bespoke mixology inquiries. Your data is never sold to third parties and is used exclusively for internal booking and communication purposes.",
+  termsAndConditions: "All Barbae Xperiance bookings require a 50% deposit to secure your date. Full payment is due 7 days prior to the event. Cancellations made within 48 hours of the event are non-refundable due to the custom nature of our artisanal preparations."
 };

@@ -6,6 +6,7 @@ export interface Plan {
   price: number;
   features: string[];
   popular?: boolean;
+  serving?: string[];
 }
 
 export interface GalleryImage {
@@ -25,6 +26,7 @@ export interface Testimonial {
   name: string;
   event: string;
   text: string;
+  timeframe?: string;
 }
 
 export interface CocktailRecipe {
