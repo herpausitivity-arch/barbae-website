@@ -2,7 +2,7 @@
 import { SiteContent } from './types';
 
 export const INITIAL_CONTENT: SiteContent = {
-  heroTitle: "Liquid Artistry",
+  heroTitle: "Barbae Artistry",
   heroSubtitle: "Premium mixology experiences where Hot Pink vibrance meets Gold sophistication.",
   aboutTitle: "Book The Xperiance!",
   aboutImage: "/Barbae Founder.png",
