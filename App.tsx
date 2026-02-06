@@ -821,6 +821,7 @@ const App: React.FC = () => {
         <div className="relative z-10 px-4 max-w-4xl">
           <span className="text-[#D4AF37] text-xs font-bold tracking-[0.4em] uppercase mb-6 block">Excellence in Every Pour</span>
           <h1 className="text-6xl md:text-9xl font-serif mb-8 pink-gold-text leading-tight">{content.heroTitle}</h1>
+          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto font-light leading-relaxed">LET'S SHAKE UP the Traditional Catering with our XCLUSIVE MOBILE BARTENDING XPERIANCE!!</p>
         </div>
       </header>
 
